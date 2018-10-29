@@ -9,6 +9,18 @@ The code of InsightFace is released under the MIT License.
 
 ## Recent Update
 
+**`2018.10.28`**: [Gender-Age](https://github.com/deepinsight/insightface/tree/master/gender-age) created with a lightweight model. About 1MB size, 10ms on single CPU core.  Gender accuracy 96% on validation set and 4.1 age MAE.
+
+**`2018.10.16`**: We got Rank 1st on the [IQIYI_VID](http://challenge.ai.iqiyi.com/detail?raceId=5afc36639689443e8f815f9e)(IQIYI video person identification) competition which in conjunction with PRCV2018, with team name ```_____WitcheR``` .
+
+**`2018.07.17`**: [Model-Zoo](https://github.com/deepinsight/insightface/wiki/Model-Zoo), [Dataset-Zoo](https://github.com/deepinsight/insightface/wiki/Dataset-Zoo)
+
+**`2018.06.14`**: There's a large scale Asian training dataset provided by Glint, see this [discussion](https://github.com/deepinsight/insightface/issues/256) for detail.
+
+**`2018.05.16`**: A new training dataset released [here](https://pan.baidu.com/s/1S6LJZGdqcZRle1vlcMzHOQ) which can easily achieve much better accuracy. See [discussion](https://github.com/deepinsight/insightface/issues/215) for detail.
+
+**`2018.04.23`**: Our implementation of [MobileFaceNet](https://arxiv.org/abs/1804.07573) is now available. Please set `--network y1` to use this lightweight but powerful backbone.
+
 **`2018.03.26`**: We can train with combined margin(loss-type=5), see [Verification Results On Combined Margin](#verification-results-on-combined-margin).
 
 **`2018.02.13`**: We achieved state-of-the-art performance on [MegaFace-Challenge](http://megaface.cs.washington.edu/results/facescrub.html). Please check our paper and code for implementation details.
@@ -16,7 +28,7 @@ The code of InsightFace is released under the MIT License.
 ## Contents
 [Deep Face Recognition](#deep-face-recognition)
 - [Introduction](#introduction)
-- [Training Data](#training-Data)
+- [Training Data](#training-data)
 - [Train](#train)
 - [Pretrained Models](#pretrained-models)
 - [Verification Results On Combined Margin](#verification-results-on-combined-margin)
@@ -38,7 +50,7 @@ The code of InsightFace is released under the MIT License.
 
 In this repository, we provide training data, network settings and loss designs for deep face recognition.
 The training data includes the normalised MS1M and VGG2 datasets, which were already packed in the MxNet binary format.
-The network backbones include ResNet, InceptionResNet_v2, DenseNet, DPN and MobiletNet.
+The network backbones include ResNet, InceptionResNet_v2, DenseNet, DPN and MobileNet.
 The loss functions include Softmax, SphereFace, CosineFace, ArcFace and Triplet (Euclidean/Angular) Loss.
 * loss-type=0:  Softmax
 * loss-type=1:  SphereFace
@@ -55,11 +67,16 @@ Our method, ArcFace, was initially described in an [arXiv technical report](http
 
 All face images are aligned by [MTCNN](https://kpzhang93.github.io/MTCNN_face_detection_alignment/index.html) and cropped to 112x112:
 
-* [Refined-MS1M@BaiduDrive](https://pan.baidu.com/s/1nxmSCch), [Refined-MS1M@GoogleDrive](https://drive.google.com/file/d/1XRdCt3xOw7B3saw0xUSzLRub_HI4Jbk3/view)
-* [VGGFace2@BaiduDrive](https://pan.baidu.com/s/1c3KeLzy), [VGGFace2@GoogleDrive](https://drive.google.com/open?id=1KORwx_DWyIScAjD6vbo4CSRu048APoum)
-* Please check *src/data/face2rec2.py* on how to build a binary face dataset. Any public available *MTCNN* can be used to align the faces, and the performance should not change. We will improve the face normalisation step by full pose alignment methods recently.
+Please check [Dataset-Zoo](https://github.com/deepinsight/insightface/wiki/Dataset-Zoo) for detail information and downloading.
 
-**Note:** If you use the refined [MS1M](https://arxiv.org/abs/1607.08221) dataset and the cropped [VGG2](https://arxiv.org/abs/1710.08092) dataset, please cite the original papers.
+
+* ~~[Refined-MS1M@BaiduDrive](https://pan.baidu.com/s/1nxmSCch), [Refined-MS1M@GoogleDrive](https://drive.google.com/file/d/1XRdCt3xOw7B3saw0xUSzLRub_HI4Jbk3/view)~~
+* ~~[VGGFace2@BaiduDrive](https://pan.baidu.com/s/1c3KeLzy), [VGGFace2@GoogleDrive](https://drive.google.com/open?id=1KORwx_DWyIScAjD6vbo4CSRu048APoum)~~
+
+~~**Note:** If you use the refined [MS1M](https://arxiv.org/abs/1607.08221) dataset and the cropped [VGG2](https://arxiv.org/abs/1710.08092) dataset, please cite the original papers.~~
+
+
+* Please check *src/data/face2rec2.py* on how to build a binary face dataset. Any public available *MTCNN* can be used to align the faces, and the performance should not change. We will improve the face normalisation step by full pose alignment methods recently.
 
 ### Train
 
@@ -121,7 +138,7 @@ CUDA_VISIBLE_DEVICES='0,1,2,3' python -u train_softmax.py --network m1 --loss-ty
 (4). Fine-turn the above Softmax model with Triplet loss.
 
 ```Shell
-CUDA_VISIBLE_DEVICES='0,1,2,3' python -u train_softmax.py --network m1 --loss-type 12 --lr 0.005 --mom 0.0 --per-batch-size 150 --data-dir ../datasets/faces_ms1m_112x112 --pretrained ../model-m1-softmax,50 --prefix ../model-m1-triplet
+CUDA_VISIBLE_DEVICES='0,1,2,3' python -u train_triplet.py --network m1 --lr 0.005 --mom 0.0 --per-batch-size 150 --data-dir ../datasets/faces_ms1m_112x112 --pretrained ../model-m1-softmax,50 --prefix ../model-m1-triplet
 ```
 
 (5). Train LDPN107E network with Softmax loss on VGGFace2 dataset.
@@ -129,6 +146,7 @@ CUDA_VISIBLE_DEVICES='0,1,2,3' python -u train_softmax.py --network m1 --loss-ty
 ```Shell
 CUDA_VISIBLE_DEVICES='0,1,2,3,4,5,6,7' python -u train_softmax.py --network p107 --loss-type 0 --per-batch-size 64 --data-dir ../datasets/faces_vgg_112x112 --prefix ../model-p107-softmax
 ```
+
 5. Verification results.
 
 *LResNet100E-IR* network trained on *MS1M* dataset with ArcFace loss:
@@ -154,6 +172,8 @@ We report the verification accuracy after removing training set overlaps to stri
 ### Pretrained Models
 
 You can use `$INSIGHTFACE/src/eval/verification.py` to test all the pre-trained models.
+
+**Please check [Model-Zoo](https://github.com/deepinsight/insightface/wiki/Model-Zoo) for more pretrained models.**
 
 1. [LResNet50E-IR@BaiduDrive](https://pan.baidu.com/s/1mj6X7MK), [@GoogleDrive](https://drive.google.com/open?id=1x0-EiYX9jMUKiq-n1Bd9OCK4fVB3a54v)
 Performance:
@@ -232,6 +252,11 @@ For single cropped face image(112x112), total inference time is only 17ms on our
 ### Third-party Re-implementation
 
 - TensorFlow: [InsightFace_TF](https://github.com/auroua/InsightFace_TF)
+- TensorFlow: [tf-insightface](https://github.com/AIInAi/tf-insightface)
+- PyTorch: [InsightFace_Pytorch](https://github.com/TreB1eN/InsightFace_Pytorch)
+- PyTorch: [arcface-pytorch](https://github.com/ronghuaiyang/arcface-pytorch)
+- Caffe: [arcface-caffe](https://github.com/xialuxi/arcface-caffe)
+
 
 ## Face Alignment
 
